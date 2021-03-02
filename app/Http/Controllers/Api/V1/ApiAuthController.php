@@ -2,63 +2,56 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Tymon\JWTAuth\Exceptions\UserNotDefinedException;
+use App\Http\Resources\User;
 
-class ApiAuthController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+class ApiAuthController extends ApiController {
+
+    public function __construct() {
+        parent::__construct();
+        $this->middleware('auth:api', ['except' => ['login', 'registerAccount', 'refeshToken']]);
+    }
+
+    public function login(Request $request) {
+        $credential = \request(['email', 'password']);
+        if ($token = auth('api')->attempt($credential)) {
+            auth('api')->refreshToken($token);
+        }
+    }
+
+    public function logOut() {
+        auth('api')->logout();
+        return $this->sendResponse(null, __('Logout successfully'));
+    }
+
+    public function refeshToken() {
+
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function me(Request $request) {
+        try {
+            $user = $request->user('api');
+            $data = new User($user);
+            return $this->sendResponse($data, __('Get info successfully'));
+        } catch (UserNotDefinedException $exception) {
+            return $this->sendResponse($data, $exception->getMessage(), Response::HTTP_NOT_FOUND);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function registerAccount() {
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
+    public function updateProfile() {
+
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+    public function forgetPassword() {}
+
 }

@@ -3,62 +3,33 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class ApiController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+class ApiController extends Controller {
+
+    const CODE_INVALID_TOKEN = 411;
+
+    protected $locale;
+    protected $currency;
+
+    public function __construct() {
+        $this->locale = request()->header('locale', 'vi');
+        $this->currency = request()->header('currency', 'USD');
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param $data
+     * @param $messages
+     * @param int $status_code
+     * @param int $http_code
+     * @param array $header
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|Response
      */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+    public function sendResponse($data, $messages, $status_code = Response::HTTP_OK, $http_code = Response::HTTP_OK, $header = []) {
+        return response([
+            'data' => $data,
+            'status_code' => $status_code,
+            'messages' => $messages
+        ], $http_code, $header);
     }
 }
